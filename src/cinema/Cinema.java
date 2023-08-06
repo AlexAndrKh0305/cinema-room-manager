@@ -1,29 +1,35 @@
 package cinema;
 
 import java.util.Arrays;
+import java.util.InputMismatchException;
 import java.util.Locale;
 import java.util.Scanner;
 
 public class Cinema {
 
-    public static char[][] createScreenRoom(int numberOfRows, int numberOfSeatsInRow) {
-        char[][] screenRoom = new char[numberOfRows][numberOfSeatsInRow];
-        for (int i = 0; i < numberOfRows; i++) {
+    static final Scanner SCANNER = new Scanner(System.in).useLocale(Locale.US);
+    static int NUMBER_OF_ROWS;
+    static int NUMBER_OF_SEATS_IN_ROW;
+    static char[][] SCREEN_ROOM;
+
+    public static char[][] createScreenRoom() {
+        char[][] screenRoom = new char[NUMBER_OF_ROWS][NUMBER_OF_SEATS_IN_ROW];
+        for (int i = 0; i < NUMBER_OF_ROWS; i++) {
             Arrays.fill(screenRoom[i], 'S');
         }
         return screenRoom;
     }
 
-    public static void showSeats(char[][] screenRoom) {
+    public static void showSeats() {
         System.out.print("Cinema:\n ");
-        for (int i = 1; i <= screenRoom[0].length; i++) {
+        for (int i = 1; i <= NUMBER_OF_SEATS_IN_ROW; i++) {
             System.out.print(" " + i);
         }
         System.out.println();
-        for (int i = 0; i < screenRoom.length; i++) {
+        for (int i = 0; i < NUMBER_OF_ROWS; i++) {
             System.out.print(i + 1);
-            for (int j = 0; j < screenRoom[i].length; j++) {
-                System.out.print(" " + screenRoom[i][j]);
+            for (int j = 0; j < NUMBER_OF_SEATS_IN_ROW; j++) {
+                System.out.print(" " + SCREEN_ROOM[i][j]);
             }
             System.out.println();
         }
@@ -37,21 +43,20 @@ public class Cinema {
         System.out.print("> ");
     }
 
-    public static void buyTicket(int numberOfRows, int numberOfSeatsInRow, char[][] screenRoom) {
-        Scanner scanner = new Scanner(System.in).useLocale(Locale.US);
+    public static void buyTicket() {
 
         // Reading reserved seat
         System.out.println("Enter a row number:");
         System.out.print("> ");
-        int rowNumber = scanner.nextInt();
+        int rowNumber = SCANNER.nextInt();
         System.out.println("Enter a seat number in that row:");
         System.out.print("> ");
-        int seatNumber = scanner.nextInt();
+        int seatNumber = SCANNER.nextInt();
 
         // Marking chosen seat
-        screenRoom[rowNumber - 1][seatNumber - 1] = 'B';
+        SCREEN_ROOM[rowNumber - 1][seatNumber - 1] = 'B';
 
-        int ticketPrice = countTicketPrice(numberOfRows, numberOfSeatsInRow, rowNumber);
+        int ticketPrice = countTicketPrice(NUMBER_OF_ROWS, NUMBER_OF_SEATS_IN_ROW, rowNumber);
         System.out.println("Ticket price: $" + ticketPrice);
         System.out.println();
     }
@@ -64,38 +69,73 @@ public class Cinema {
         }
     }
 
+    public static void readDimensions() {
+        boolean isCorrect = false;
+        while (!isCorrect) {
+            try {
+                System.out.println("Enter the number of rows:");
+                System.out.print("> ");
+                NUMBER_OF_ROWS = Integer.parseInt(SCANNER.nextLine());
+                if (NUMBER_OF_ROWS < 1) {
+                    System.out.println();
+                    System.out.println("Incorrect value for \"Number of rows\"");
+                    System.out.println();
+                    continue;
+                }
+                isCorrect = true;
+            } catch (NumberFormatException e) {
+                System.out.println();
+                System.out.println("Incorrect value for \"Number of rows\"");
+                System.out.println();
+            }
+        }
+        isCorrect = false;
+        while (!isCorrect) {
+            try {
+                System.out.println("Enter the number of seats in each row:");
+                System.out.print("> ");
+                NUMBER_OF_SEATS_IN_ROW = Integer.parseInt(SCANNER.nextLine());
+                if (NUMBER_OF_SEATS_IN_ROW < 1) {
+                    System.out.println();
+                    System.out.println("Incorrect value for \"Number of seats in row\"");
+                    System.out.println();
+                    continue;
+                }
+                isCorrect = true;
+            } catch (NumberFormatException e) {
+                System.out.println();
+                System.out.println("Incorrect value for \"Number of seats in row\"");
+                System.out.println();
+            }
+        }
+        System.out.println();
+    }
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in).useLocale(Locale.US);
 
         // Reading dimensions of screen room
-        System.out.println("Enter the number of rows:");
-        System.out.print("> ");
-        int numberOfRows = scanner.nextInt();
-        System.out.println("Enter the number of seats in each row:");
-        System.out.print("> ");
-        int numberOfSeatsInRow = scanner.nextInt();
-        System.out.println();
+        readDimensions();
 
         // Creating screen room
-        char[][] screenRoom = createScreenRoom(numberOfRows, numberOfSeatsInRow);
+        SCREEN_ROOM = createScreenRoom();
 
         printMenu();
-        int itemInMenu = scanner.nextInt();
+        int itemInMenu = SCANNER.nextInt();
         System.out.println();
         while (itemInMenu != 0) {
             switch (itemInMenu) {
                 case 1:
-                    showSeats(screenRoom);
+                    showSeats();
                     break;
                 case 2:
-                    buyTicket(numberOfRows, numberOfSeatsInRow, screenRoom);
+                    buyTicket();
                     break;
                 default:
                     System.out.println("There is no such item!");
                     break;
             }
             printMenu();
-            itemInMenu = scanner.nextInt();
+            itemInMenu = SCANNER.nextInt();
             System.out.println();
         }
     }
