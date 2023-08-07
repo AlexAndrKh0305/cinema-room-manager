@@ -6,10 +6,22 @@ import java.util.Scanner;
 
 public final class Cinema {
 
-    static final Scanner SCANNER = new Scanner(System.in).useLocale(Locale.US);
-    static int NUMBER_OF_ROWS;
-    static int NUMBER_OF_SEATS_IN_ROW;
-    static char[][] SCREEN_ROOM;
+    private static final Scanner SCANNER = new Scanner(System.in).useLocale(Locale.US);
+    private static int NUMBER_OF_ROWS;
+    private static int NUMBER_OF_SEATS_IN_ROW;
+    private static char[][] SCREEN_ROOM;
+    private static int PURCHASED_TICKETS;
+    private static int CURRENT_INCOME;
+    private static int TOTAL_INCOME;
+
+    private static int countTotalIncome() {
+        if (NUMBER_OF_ROWS * NUMBER_OF_SEATS_IN_ROW <= 60) {
+            return 10 * NUMBER_OF_ROWS * NUMBER_OF_SEATS_IN_ROW;
+        }
+        int rowsInFrontHalf = NUMBER_OF_ROWS / 2;
+        int rowsInBackHalf = (NUMBER_OF_ROWS + 1) / 2;
+        return (10 * rowsInFrontHalf + 8 * rowsInBackHalf) * NUMBER_OF_SEATS_IN_ROW;
+    }
 
     private static char[][] createScreenRoom() {
         char[][] screenRoom = new char[NUMBER_OF_ROWS][NUMBER_OF_SEATS_IN_ROW];
@@ -38,34 +50,74 @@ public final class Cinema {
     private static void printMenu() {
         System.out.println("1. Show the seats");
         System.out.println("2. Buy a ticket");
+        System.out.println("3. Statistics");
         System.out.println("0. Exit");
         System.out.print("> ");
     }
 
     private static void buyTicket() {
 
-        // Reading reserved seat
-        System.out.println("Enter a row number:");
-        System.out.print("> ");
-        int rowNumber = SCANNER.nextInt();
-        System.out.println("Enter a seat number in that row:");
-        System.out.print("> ");
-        int seatNumber = SCANNER.nextInt();
-
-        // Marking chosen seat
-        SCREEN_ROOM[rowNumber - 1][seatNumber - 1] = 'B';
-
-        int ticketPrice = countTicketPrice(NUMBER_OF_ROWS, NUMBER_OF_SEATS_IN_ROW, rowNumber);
-        System.out.println("Ticket price: $" + ticketPrice);
-        System.out.println();
+        while (true) {
+            int rowNumber = getRowNumber();
+            int seatNumber = getSeatNumber();
+            if (SCREEN_ROOM[rowNumber - 1][seatNumber - 1] == 'B') {
+                System.out.println("\nThat ticket has already been purchased!\n");
+            } else {
+                SCREEN_ROOM[rowNumber - 1][seatNumber - 1] = 'B';
+                int ticketPrice = countTicketPrice(rowNumber);
+                CURRENT_INCOME += ticketPrice;
+                PURCHASED_TICKETS++;
+                System.out.printf("%nTicket price: $%d%n%n", ticketPrice);
+                break;
+            }
+        }
     }
 
-    public static int countTicketPrice(int numberOfRows, int numberOfSeatsInRow, int rowNumber) {
-        if (numberOfRows * numberOfSeatsInRow <= 60) {
-            return 10;
-        } else {
-            return (rowNumber <= numberOfRows / 2) ? 10 : 8;
+    private static int getRowNumber() {
+        boolean isCorrect = false;
+        int rowNumber = 0;
+        while (!isCorrect) {
+            try {
+                System.out.println("Enter a row number:");
+                System.out.print("> ");
+                rowNumber = Integer.parseInt(SCANNER.nextLine());
+                if (rowNumber <= 0 || rowNumber > NUMBER_OF_ROWS) {
+                    System.out.println("\nIncorrect value for \"Row number\"\n");
+                    continue;
+                }
+                isCorrect = true;
+            } catch (NumberFormatException e) {
+                System.out.println("\nIncorrect value for \"Row number\"\n");
+            }
         }
+        return rowNumber;
+    }
+
+    private static int getSeatNumber() {
+        boolean isCorrect = false;
+        int seatNumber = 0;
+        while (!isCorrect) {
+            try {
+                System.out.println("Enter a seat number in that row:");
+                System.out.print("> ");
+                seatNumber = Integer.parseInt(SCANNER.nextLine());
+                if (seatNumber <= 0 || seatNumber > NUMBER_OF_SEATS_IN_ROW) {
+                    System.out.println("\nIncorrect value for \"Seat number\"\n");
+                    continue;
+                }
+                isCorrect = true;
+            } catch (NumberFormatException e) {
+                System.out.println("\nIncorrect value for \"Seat number\"\n");
+            }
+        }
+        return seatNumber;
+    }
+
+    private static int countTicketPrice(int rowNumber) {
+        if (NUMBER_OF_ROWS * NUMBER_OF_SEATS_IN_ROW <= 60) {
+            return 10;
+        }
+        return (rowNumber <= NUMBER_OF_ROWS / 2) ? 10 : 8;
     }
 
     private static void readDimensions() {
@@ -83,16 +135,12 @@ public final class Cinema {
                 System.out.print("> ");
                 numberOfRows = Integer.parseInt(SCANNER.nextLine());
                 if (numberOfRows < 1) {
-                    System.out.println();
-                    System.out.println("Incorrect value for \"Number of rows\"");
-                    System.out.println();
+                    System.out.println("\nIncorrect value for \"Number of rows\"\n");
                     continue;
                 }
                 isCorrect = true;
             } catch (NumberFormatException e) {
-                System.out.println();
-                System.out.println("Incorrect value for \"Number of rows\"");
-                System.out.println();
+                System.out.println("\nIncorrect value for \"Number of rows\"\n");
             }
         }
         return numberOfRows;
@@ -107,16 +155,12 @@ public final class Cinema {
                 System.out.print("> ");
                 numberOfSeatsInRow = Integer.parseInt(SCANNER.nextLine());
                 if (numberOfSeatsInRow < 1) {
-                    System.out.println();
-                    System.out.println("Incorrect value for \"Number of seats in row\"");
-                    System.out.println();
+                    System.out.println("\nIncorrect value for \"Number of seats in row\"\n");
                     continue;
                 }
                 isCorrect = true;
             } catch (NumberFormatException e) {
-                System.out.println();
-                System.out.println("Incorrect value for \"Number of seats in row\"");
-                System.out.println();
+                System.out.println("\nIncorrect value for \"Number of seats in row\"\n");
             }
         }
         return numberOfSeatsInRow;
@@ -132,6 +176,9 @@ public final class Cinema {
                     break;
                 case 2:
                     buyTicket();
+                    break;
+                case 3:
+                    showStatistics();
                     break;
                 default:
                     System.out.println("There is no such item!");
@@ -151,9 +198,7 @@ public final class Cinema {
                 System.out.println();
                 isCorrect = true;
             } catch (NumberFormatException e) {
-                System.out.println();
-                System.out.println("Incorrect value for \"Item in menu\"");
-                System.out.println();
+                System.out.println("\nIncorrect value for \"Item in menu\"\n");
             }
         }
         return itemInMenu;
@@ -161,7 +206,16 @@ public final class Cinema {
 
     public static void initCinema() {
         readDimensions();
+        TOTAL_INCOME = countTotalIncome();
         SCREEN_ROOM = createScreenRoom();
+    }
+
+    private static void showStatistics() {
+        System.out.printf("Number of purchased tickets: %d%n", PURCHASED_TICKETS);
+        double percent = (double) 100 * PURCHASED_TICKETS / (NUMBER_OF_ROWS * NUMBER_OF_SEATS_IN_ROW);
+        System.out.printf(Locale.US, "Percentage: %.2f%%%n", percent);
+        System.out.printf("Current income: $%d%n", CURRENT_INCOME);
+        System.out.printf("Total income: $%d%n%n", TOTAL_INCOME);
     }
 
     public static void main(String[] args) {
