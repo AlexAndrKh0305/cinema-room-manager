@@ -1,18 +1,17 @@
 package cinema;
 
 import java.util.Arrays;
-import java.util.InputMismatchException;
 import java.util.Locale;
 import java.util.Scanner;
 
-public class Cinema {
+public final class Cinema {
 
     static final Scanner SCANNER = new Scanner(System.in).useLocale(Locale.US);
     static int NUMBER_OF_ROWS;
     static int NUMBER_OF_SEATS_IN_ROW;
     static char[][] SCREEN_ROOM;
 
-    public static char[][] createScreenRoom() {
+    private static char[][] createScreenRoom() {
         char[][] screenRoom = new char[NUMBER_OF_ROWS][NUMBER_OF_SEATS_IN_ROW];
         for (int i = 0; i < NUMBER_OF_ROWS; i++) {
             Arrays.fill(screenRoom[i], 'S');
@@ -20,7 +19,7 @@ public class Cinema {
         return screenRoom;
     }
 
-    public static void showSeats() {
+    private static void showSeats() {
         System.out.print("Cinema:\n ");
         for (int i = 1; i <= NUMBER_OF_SEATS_IN_ROW; i++) {
             System.out.print(" " + i);
@@ -36,14 +35,14 @@ public class Cinema {
         System.out.println();
     }
 
-    public static void printMenu() {
+    private static void printMenu() {
         System.out.println("1. Show the seats");
         System.out.println("2. Buy a ticket");
         System.out.println("0. Exit");
         System.out.print("> ");
     }
 
-    public static void buyTicket() {
+    private static void buyTicket() {
 
         // Reading reserved seat
         System.out.println("Enter a row number:");
@@ -69,14 +68,21 @@ public class Cinema {
         }
     }
 
-    public static void readDimensions() {
+    private static void readDimensions() {
+        NUMBER_OF_ROWS = getNumberOfRows();
+        NUMBER_OF_SEATS_IN_ROW = getNumberOfSeatsInRow();
+        System.out.println();
+    }
+
+    private static int getNumberOfRows() {
         boolean isCorrect = false;
+        int numberOfRows = 0;
         while (!isCorrect) {
             try {
                 System.out.println("Enter the number of rows:");
                 System.out.print("> ");
-                NUMBER_OF_ROWS = Integer.parseInt(SCANNER.nextLine());
-                if (NUMBER_OF_ROWS < 1) {
+                numberOfRows = Integer.parseInt(SCANNER.nextLine());
+                if (numberOfRows < 1) {
                     System.out.println();
                     System.out.println("Incorrect value for \"Number of rows\"");
                     System.out.println();
@@ -89,13 +95,18 @@ public class Cinema {
                 System.out.println();
             }
         }
-        isCorrect = false;
+        return numberOfRows;
+    }
+
+    private static int getNumberOfSeatsInRow() {
+        boolean isCorrect = false;
+        int numberOfSeatsInRow = 0;
         while (!isCorrect) {
             try {
                 System.out.println("Enter the number of seats in each row:");
                 System.out.print("> ");
-                NUMBER_OF_SEATS_IN_ROW = Integer.parseInt(SCANNER.nextLine());
-                if (NUMBER_OF_SEATS_IN_ROW < 1) {
+                numberOfSeatsInRow = Integer.parseInt(SCANNER.nextLine());
+                if (numberOfSeatsInRow < 1) {
                     System.out.println();
                     System.out.println("Incorrect value for \"Number of seats in row\"");
                     System.out.println();
@@ -108,20 +119,12 @@ public class Cinema {
                 System.out.println();
             }
         }
-        System.out.println();
+        return numberOfSeatsInRow;
     }
 
-    public static void main(String[] args) {
-
-        // Reading dimensions of screen room
-        readDimensions();
-
-        // Creating screen room
-        SCREEN_ROOM = createScreenRoom();
-
-        printMenu();
-        int itemInMenu = SCANNER.nextInt();
-        System.out.println();
+    public static void chooseItem() {
+        int itemInMenu;
+        itemInMenu = getItemInMenu();
         while (itemInMenu != 0) {
             switch (itemInMenu) {
                 case 1:
@@ -134,9 +137,39 @@ public class Cinema {
                     System.out.println("There is no such item!");
                     break;
             }
-            printMenu();
-            itemInMenu = SCANNER.nextInt();
-            System.out.println();
+            itemInMenu = getItemInMenu();
         }
+    }
+
+    private static int getItemInMenu() {
+        boolean isCorrect = false;
+        int itemInMenu = 0;
+        while (!isCorrect) {
+            try {
+                printMenu();
+                itemInMenu = Integer.parseInt(SCANNER.nextLine());
+                System.out.println();
+                isCorrect = true;
+            } catch (NumberFormatException e) {
+                System.out.println();
+                System.out.println("Incorrect value for \"Item in menu\"");
+                System.out.println();
+            }
+        }
+        return itemInMenu;
+    }
+
+    public static void initCinema() {
+        readDimensions();
+        SCREEN_ROOM = createScreenRoom();
+    }
+
+    public static void main(String[] args) {
+
+        // Cinema initialization
+        initCinema();
+
+        // Choosing item in menu
+        chooseItem();
     }
 }
