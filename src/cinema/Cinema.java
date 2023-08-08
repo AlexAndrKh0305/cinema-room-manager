@@ -6,48 +6,56 @@ import java.util.Scanner;
 
 public final class Cinema {
 
-    private static final Scanner SCANNER = new Scanner(System.in).useLocale(Locale.US);
-    private static int NUMBER_OF_ROWS;
-    private static int NUMBER_OF_SEATS_IN_ROW;
-    private static char[][] SCREEN_ROOM;
-    private static int PURCHASED_TICKETS;
-    private static int CURRENT_INCOME;
-    private static int TOTAL_INCOME;
+    private final Scanner scanner = new Scanner(System.in).useLocale(Locale.US);
+    private final int numberOfRows;
+    private final int numberOfSeatsInRow;
+    private final char[][] screenRoom;
+    private int purchasedTickets;
+    private int currentIncome;
+    private final int totalIncome;
 
-    private static int countTotalIncome() {
-        if (NUMBER_OF_ROWS * NUMBER_OF_SEATS_IN_ROW <= 60) {
-            return 10 * NUMBER_OF_ROWS * NUMBER_OF_SEATS_IN_ROW;
-        }
-        int rowsInFrontHalf = NUMBER_OF_ROWS / 2;
-        int rowsInBackHalf = (NUMBER_OF_ROWS + 1) / 2;
-        return (10 * rowsInFrontHalf + 8 * rowsInBackHalf) * NUMBER_OF_SEATS_IN_ROW;
+    public Cinema() {
+        numberOfRows = getNumberOfRows();
+        numberOfSeatsInRow = getNumberOfSeatsInRow();
+        System.out.println();
+        totalIncome = countTotalIncome();
+        screenRoom = createScreenRoom();
     }
 
-    private static char[][] createScreenRoom() {
-        char[][] screenRoom = new char[NUMBER_OF_ROWS][NUMBER_OF_SEATS_IN_ROW];
-        for (int i = 0; i < NUMBER_OF_ROWS; i++) {
+    private int countTotalIncome() {
+        if (numberOfRows * numberOfSeatsInRow <= 60) {
+            return 10 * numberOfRows * numberOfSeatsInRow;
+        }
+        int rowsInFrontHalf = numberOfRows / 2;
+        int rowsInBackHalf = (numberOfRows + 1) / 2;
+        return (10 * rowsInFrontHalf + 8 * rowsInBackHalf) * numberOfSeatsInRow;
+    }
+
+    private char[][] createScreenRoom() {
+        char[][] screenRoom = new char[numberOfRows][numberOfSeatsInRow];
+        for (int i = 0; i < numberOfRows; i++) {
             Arrays.fill(screenRoom[i], 'S');
         }
         return screenRoom;
     }
 
-    private static void showSeats() {
+    private void showSeats() {
         System.out.print("Cinema:\n ");
-        for (int i = 1; i <= NUMBER_OF_SEATS_IN_ROW; i++) {
+        for (int i = 1; i <= numberOfSeatsInRow; i++) {
             System.out.print(" " + i);
         }
         System.out.println();
-        for (int i = 0; i < NUMBER_OF_ROWS; i++) {
+        for (int i = 0; i < numberOfRows; i++) {
             System.out.print(i + 1);
-            for (int j = 0; j < NUMBER_OF_SEATS_IN_ROW; j++) {
-                System.out.print(" " + SCREEN_ROOM[i][j]);
+            for (int j = 0; j < numberOfSeatsInRow; j++) {
+                System.out.print(" " + screenRoom[i][j]);
             }
             System.out.println();
         }
         System.out.println();
     }
 
-    private static void printMenu() {
+    private void printMenu() {
         System.out.println("1. Show the seats");
         System.out.println("2. Buy a ticket");
         System.out.println("3. Statistics");
@@ -55,33 +63,33 @@ public final class Cinema {
         System.out.print("> ");
     }
 
-    private static void buyTicket() {
+    private void buyTicket() {
 
         while (true) {
             int rowNumber = getRowNumber();
             int seatNumber = getSeatNumber();
-            if (SCREEN_ROOM[rowNumber - 1][seatNumber - 1] == 'B') {
+            if (screenRoom[rowNumber - 1][seatNumber - 1] == 'B') {
                 System.out.println("\nThat ticket has already been purchased!\n");
             } else {
-                SCREEN_ROOM[rowNumber - 1][seatNumber - 1] = 'B';
+                screenRoom[rowNumber - 1][seatNumber - 1] = 'B';
                 int ticketPrice = countTicketPrice(rowNumber);
-                CURRENT_INCOME += ticketPrice;
-                PURCHASED_TICKETS++;
+                currentIncome += ticketPrice;
+                purchasedTickets++;
                 System.out.printf("%nTicket price: $%d%n%n", ticketPrice);
                 break;
             }
         }
     }
 
-    private static int getRowNumber() {
+    private int getRowNumber() {
         boolean isCorrect = false;
         int rowNumber = 0;
         while (!isCorrect) {
             try {
                 System.out.println("Enter a row number:");
                 System.out.print("> ");
-                rowNumber = Integer.parseInt(SCANNER.nextLine());
-                if (rowNumber <= 0 || rowNumber > NUMBER_OF_ROWS) {
+                rowNumber = Integer.parseInt(scanner.nextLine());
+                if (rowNumber <= 0 || rowNumber > numberOfRows) {
                     System.out.println("\nIncorrect value for \"Row number\"\n");
                     continue;
                 }
@@ -93,15 +101,15 @@ public final class Cinema {
         return rowNumber;
     }
 
-    private static int getSeatNumber() {
+    private int getSeatNumber() {
         boolean isCorrect = false;
         int seatNumber = 0;
         while (!isCorrect) {
             try {
                 System.out.println("Enter a seat number in that row:");
                 System.out.print("> ");
-                seatNumber = Integer.parseInt(SCANNER.nextLine());
-                if (seatNumber <= 0 || seatNumber > NUMBER_OF_SEATS_IN_ROW) {
+                seatNumber = Integer.parseInt(scanner.nextLine());
+                if (seatNumber <= 0 || seatNumber > numberOfSeatsInRow) {
                     System.out.println("\nIncorrect value for \"Seat number\"\n");
                     continue;
                 }
@@ -113,27 +121,21 @@ public final class Cinema {
         return seatNumber;
     }
 
-    private static int countTicketPrice(int rowNumber) {
-        if (NUMBER_OF_ROWS * NUMBER_OF_SEATS_IN_ROW <= 60) {
+    private int countTicketPrice(int rowNumber) {
+        if (numberOfRows * numberOfSeatsInRow <= 60) {
             return 10;
         }
-        return (rowNumber <= NUMBER_OF_ROWS / 2) ? 10 : 8;
+        return (rowNumber <= numberOfRows / 2) ? 10 : 8;
     }
 
-    private static void readDimensions() {
-        NUMBER_OF_ROWS = getNumberOfRows();
-        NUMBER_OF_SEATS_IN_ROW = getNumberOfSeatsInRow();
-        System.out.println();
-    }
-
-    private static int getNumberOfRows() {
+    private int getNumberOfRows() {
         boolean isCorrect = false;
         int numberOfRows = 0;
         while (!isCorrect) {
             try {
                 System.out.println("Enter the number of rows:");
                 System.out.print("> ");
-                numberOfRows = Integer.parseInt(SCANNER.nextLine());
+                numberOfRows = Integer.parseInt(scanner.nextLine());
                 if (numberOfRows < 1) {
                     System.out.println("\nIncorrect value for \"Number of rows\"\n");
                     continue;
@@ -146,14 +148,14 @@ public final class Cinema {
         return numberOfRows;
     }
 
-    private static int getNumberOfSeatsInRow() {
+    private int getNumberOfSeatsInRow() {
         boolean isCorrect = false;
         int numberOfSeatsInRow = 0;
         while (!isCorrect) {
             try {
                 System.out.println("Enter the number of seats in each row:");
                 System.out.print("> ");
-                numberOfSeatsInRow = Integer.parseInt(SCANNER.nextLine());
+                numberOfSeatsInRow = Integer.parseInt(scanner.nextLine());
                 if (numberOfSeatsInRow < 1) {
                     System.out.println("\nIncorrect value for \"Number of seats in row\"\n");
                     continue;
@@ -166,7 +168,7 @@ public final class Cinema {
         return numberOfSeatsInRow;
     }
 
-    public static void chooseItem() {
+    public void chooseItem() {
         int itemInMenu;
         itemInMenu = getItemInMenu();
         while (itemInMenu != 0) {
@@ -188,13 +190,13 @@ public final class Cinema {
         }
     }
 
-    private static int getItemInMenu() {
+    private int getItemInMenu() {
         boolean isCorrect = false;
         int itemInMenu = 0;
         while (!isCorrect) {
             try {
                 printMenu();
-                itemInMenu = Integer.parseInt(SCANNER.nextLine());
+                itemInMenu = Integer.parseInt(scanner.nextLine());
                 System.out.println();
                 isCorrect = true;
             } catch (NumberFormatException e) {
@@ -204,26 +206,12 @@ public final class Cinema {
         return itemInMenu;
     }
 
-    public static void initCinema() {
-        readDimensions();
-        TOTAL_INCOME = countTotalIncome();
-        SCREEN_ROOM = createScreenRoom();
-    }
-
-    private static void showStatistics() {
-        System.out.printf("Number of purchased tickets: %d%n", PURCHASED_TICKETS);
-        double percent = (double) 100 * PURCHASED_TICKETS / (NUMBER_OF_ROWS * NUMBER_OF_SEATS_IN_ROW);
+    private void showStatistics() {
+        System.out.printf("Number of purchased tickets: %d%n", purchasedTickets);
+        double percent = (double) 100 * purchasedTickets / (numberOfRows * numberOfSeatsInRow);
         System.out.printf(Locale.US, "Percentage: %.2f%%%n", percent);
-        System.out.printf("Current income: $%d%n", CURRENT_INCOME);
-        System.out.printf("Total income: $%d%n%n", TOTAL_INCOME);
+        System.out.printf("Current income: $%d%n", currentIncome);
+        System.out.printf("Total income: $%d%n%n", totalIncome);
     }
 
-    public static void main(String[] args) {
-
-        // Cinema initialization
-        initCinema();
-
-        // Choosing item in menu
-        chooseItem();
-    }
 }
