@@ -22,6 +22,28 @@ public final class Cinema {
         screenRoom = createScreenRoom();
     }
 
+    public void chooseItem() {
+        int itemInMenu;
+        itemInMenu = getItemInMenu();
+        while (itemInMenu != 0) {
+            switch (itemInMenu) {
+                case 1:
+                    showSeats();
+                    break;
+                case 2:
+                    buyTicket();
+                    break;
+                case 3:
+                    showStatistics();
+                    break;
+                default:
+                    System.out.println("There is no such item!");
+                    break;
+            }
+            itemInMenu = getItemInMenu();
+        }
+    }
+
     private int countTotalIncome() {
         if (numberOfRows * numberOfSeatsInRow <= 60) {
             return 10 * numberOfRows * numberOfSeatsInRow;
@@ -166,28 +188,6 @@ public final class Cinema {
             }
         }
         return numberOfSeatsInRow;
-    }
-
-    public void chooseItem() {
-        int itemInMenu;
-        itemInMenu = getItemInMenu();
-        while (itemInMenu != 0) {
-            switch (itemInMenu) {
-                case 1:
-                    showSeats();
-                    break;
-                case 2:
-                    buyTicket();
-                    break;
-                case 3:
-                    showStatistics();
-                    break;
-                default:
-                    System.out.println("There is no such item!");
-                    break;
-            }
-            itemInMenu = getItemInMenu();
-        }
     }
 
     private int getItemInMenu() {
